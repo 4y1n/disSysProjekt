@@ -13,7 +13,7 @@ public class EnergyService {
     public CurrentPercentage getCurrentPercentage(){
         CurrentPercentage cp = new CurrentPercentage();
         cp.setHour(LocalDateTime.now());
-        cp.setCommunityPoolUsed(20); //demodata (same in list)
+        cp.setCommunityDepleted(20); //demodata (same in list)
         cp.setGridPortion(30); //demodata
         return cp;
     }

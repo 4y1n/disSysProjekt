@@ -4,22 +4,24 @@ import java.time.LocalDateTime;
 
 public class CurrentPercentage {
     private LocalDateTime hour;
-    private double communityPoolUsed;
+    private double communityDepleted;
     private double gridPortion;
 
-    public CurrentPercentage(LocalDateTime hour, double communityPoolUsed, double gridPortion) {
-        this.hour = hour;
-        this.communityPoolUsed = communityPoolUsed;
-        this.gridPortion = gridPortion;
+    public CurrentPercentage() {
+    }
 
+    public CurrentPercentage(LocalDateTime hour, double communityDepleted, double gridPortion) {
+        this.hour = hour;
+        this.communityDepleted = communityDepleted;
+        this.gridPortion = gridPortion;
     }
 
     public LocalDateTime getHour() {
         return hour;
     }
 
-    public double getCommunity() {
-        return communityPoolUsed;
+    public double getCommunityDepleted() {
+        return communityDepleted;
     }
 
     public double getGridPortion() {
@@ -30,8 +32,8 @@ public class CurrentPercentage {
         this.hour = hour;
     }
 
-    public void setCommunityPoolUsed(double communityPoolUsed) {
-        this.communityPoolUsed = communityPoolUsed;
+    public void setCommunityDepleted(double communityDepleted) {
+        this.communityDepleted = communityDepleted;
     }
 
     public void setGridPortion(double gridPortion) {

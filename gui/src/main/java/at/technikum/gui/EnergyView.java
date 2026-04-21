@@ -1,15 +1,29 @@
+package at.technikum.gui;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import javafx.application.Platform;
+import javafx.geometry.Insets;
+import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+
 public class EnergyView {
+
     private final VBox root = new VBox(10);
     private final ApiClient apiClient = new ApiClient();
+    private final ObjectMapper mapper = new ObjectMapper();
 
-    // Current data labels
+    // Current Section
     private final Label communityPoolLabel = new Label("Community Pool: -");
     private final Label gridPortionLabel   = new Label("Grid Portion: -");
 
-    // Historical data
+    // Historical Section
     private final TextField startField = new TextField("2025-01-10T13:00:00");
     private final TextField endField   = new TextField("2025-01-10T15:00:00");
-    private final TextArea  historyArea = new TextArea();
+    private final Label communityProducedLabel = new Label("Community produced: -");
+    private final Label communityUsedLabel     = new Label("Community used: -");
+    private final Label gridUsedLabel          = new Label("Grid used: -");
 
     public EnergyView() {
         root.setPadding(new Insets(15));
@@ -28,26 +42,27 @@ public class EnergyView {
         // --- Historical Section ---
         Button showDataBtn = new Button("Show Data");
         showDataBtn.setOnAction(e -> loadHistorical());
-        historyArea.setPrefHeight(150);
-        historyArea.setEditable(false);
 
         VBox histBox = new VBox(5,
                 new Label("=== Historical Data ==="),
                 new HBox(10, new Label("Start:"), startField),
                 new HBox(10, new Label("End:  "), endField),
                 showDataBtn,
-                historyArea
+                communityProducedLabel,
+                communityUsedLabel,
+                gridUsedLabel
         );
 
         root.getChildren().addAll(currentBox, new Separator(), histBox);
-        loadCurrent(); // beim Start gleich laden
+
+        // Beim Start gleich aktuelle Daten laden
+        loadCurrent();
     }
 
     private void loadCurrent() {
         new Thread(() -> {
             try {
                 String json = apiClient.fetchCurrent();
-                ObjectMapper mapper = new ObjectMapper();
                 JsonNode node = mapper.readTree(json);
                 double depleted = node.get("communityDepleted").asDouble();
                 double grid     = node.get("gridPortion").asDouble();
@@ -58,7 +73,7 @@ public class EnergyView {
                 });
             } catch (Exception ex) {
                 Platform.runLater(() ->
-                        communityPoolLabel.setText("Error: " + ex.getMessage()));
+                        communityPoolLabel.setText("Fehler: " + ex.getMessage()));
             }
         }).start();
     }
@@ -68,12 +83,35 @@ public class EnergyView {
             try {
                 String json = apiClient.fetchHistorical(
                         startField.getText(), endField.getText());
-                Platform.runLater(() -> historyArea.setText(json));
+                JsonNode array = mapper.readTree(json);
+
+                double totalProduced = 0, totalUsed = 0, totalGrid = 0;
+                for (JsonNode entry : array) {
+                    totalProduced += entry.get("communityProduced").asDouble();
+                    totalUsed     += entry.get("communityUsed").asDouble();
+                    totalGrid     += entry.get("gridUsed").asDouble();
+                }
+
+                double finalProduced = totalProduced;
+                double finalUsed     = totalUsed;
+                double finalGrid     = totalGrid;
+
+                Platform.runLater(() -> {
+                    communityProducedLabel.setText(
+                            "Community produced: " + finalProduced + " kWh");
+                    communityUsedLabel.setText(
+                            "Community used: " + finalUsed + " kWh");
+                    gridUsedLabel.setText(
+                            "Grid used: " + finalGrid + " kWh");
+                });
             } catch (Exception ex) {
-                Platform.runLater(() -> historyArea.setText("Error: " + ex.getMessage()));
+                Platform.runLater(() ->
+                        communityProducedLabel.setText("Fehler: " + ex.getMessage()));
             }
         }).start();
     }
 
-    public VBox getRoot() { return root; }
+    public VBox getRoot() {
+        return root;
+    }
 }

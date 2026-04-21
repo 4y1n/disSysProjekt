@@ -10,7 +10,7 @@ public class ApiClient {
     private static final String BASE_URL = "http://localhost:8080/energy";
 
     //zum testen auf true wegen rest api
-    private static final boolean USE_MOCK = true;
+    private static final boolean USE_MOCK = false;
 
     private final HttpClient httpClient = HttpClient.newHttpClient();
 

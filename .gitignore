@@ -1,0 +1,15 @@
+# Build
+target/
+out/
+*.class
+
+# IntelliJ
+.idea/shelf/
+.idea/workspace.xml
+.idea/dataSources/
+.idea/usage.statistics.xml
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db

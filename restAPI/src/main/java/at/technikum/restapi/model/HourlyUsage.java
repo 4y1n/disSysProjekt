@@ -1,4 +1,4 @@
-package at.technikum.dissysproj.restapi.model;
+package at.technikum.restapi.model;
 
 import java.time.LocalDateTime;
 

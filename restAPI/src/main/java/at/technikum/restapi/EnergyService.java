@@ -1,7 +1,7 @@
-package at.technikum.dissysproj.restapi;
+package at.technikum.restapi;
 
-import at.technikum.dissysproj.restapi.model.CurrentPercentage;
-import at.technikum.dissysproj.restapi.model.HourlyUsage;
+import at.technikum.restapi.model.CurrentPercentage;
+import at.technikum.restapi.model.HourlyUsage;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

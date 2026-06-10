@@ -1,13 +1,10 @@
-package at.technikum.dissysproj;
+package at.technikum.restapi;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class DisSysProjApplicationTests {
-
+class RestApiApplicationTests {
     @Test
-    void contextLoads() {
-    }
-
+    void contextLoads() {}
 }

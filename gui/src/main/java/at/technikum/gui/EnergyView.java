@@ -17,13 +17,12 @@ public class EnergyView {
     // Current Section
     private final Label communityPoolLabel = new Label("Community Pool: -");
     private final Label gridPortionLabel   = new Label("Grid Portion: -");
+    private final Label currentHourLabel   = new Label("Hour: -");
 
     // Historical Section
     private final TextField startField = new TextField("2025-01-10T13:00:00");
     private final TextField endField   = new TextField("2025-01-10T15:00:00");
-    private final Label communityProducedLabel = new Label("Community produced: -");
-    private final Label communityUsedLabel     = new Label("Community used: -");
-    private final Label gridUsedLabel          = new Label("Grid used: -");
+    private final VBox historicalResultBox = new VBox(4);
 
     public EnergyView() {
         root.setPadding(new Insets(15));
@@ -34,6 +33,7 @@ public class EnergyView {
 
         VBox currentBox = new VBox(5,
                 new Label("=== Current Hour ==="),
+                currentHourLabel,
                 communityPoolLabel,
                 gridPortionLabel,
                 refreshBtn
@@ -43,19 +43,20 @@ public class EnergyView {
         Button showDataBtn = new Button("Show Data");
         showDataBtn.setOnAction(e -> loadHistorical());
 
+        ScrollPane scrollPane = new ScrollPane(historicalResultBox);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setPrefHeight(200);
+
         VBox histBox = new VBox(5,
                 new Label("=== Historical Data ==="),
                 new HBox(10, new Label("Start:"), startField),
                 new HBox(10, new Label("End:  "), endField),
                 showDataBtn,
-                communityProducedLabel,
-                communityUsedLabel,
-                gridUsedLabel
+                scrollPane
         );
 
         root.getChildren().addAll(currentBox, new Separator(), histBox);
 
-        // Beim Start gleich aktuelle Daten laden
         loadCurrent();
     }
 
@@ -66,10 +67,12 @@ public class EnergyView {
                 JsonNode node = mapper.readTree(json);
                 double depleted = node.get("communityDepleted").asDouble();
                 double grid     = node.get("gridPortion").asDouble();
+                String hour     = node.get("hour").asText();
 
                 Platform.runLater(() -> {
-                    communityPoolLabel.setText("Community Pool: " + depleted + "% used");
-                    gridPortionLabel.setText("Grid Portion: " + grid + "%");
+                    currentHourLabel.setText("Hour: " + hour);
+                    communityPoolLabel.setText("Community Pool: " + String.format("%.2f", depleted) + "% depleted");
+                    gridPortionLabel.setText("Grid Portion: " + String.format("%.2f", grid) + "%");
                 });
             } catch (Exception ex) {
                 Platform.runLater(() ->
@@ -85,30 +88,53 @@ public class EnergyView {
                         startField.getText(), endField.getText());
                 JsonNode array = mapper.readTree(json);
 
-                double totalProduced = 0, totalUsed = 0, totalGrid = 0;
-                for (JsonNode entry : array) {
-                    totalProduced += entry.get("communityProduced").asDouble();
-                    totalUsed     += entry.get("communityUsed").asDouble();
-                    totalGrid     += entry.get("gridUsed").asDouble();
-                }
-
-                double finalProduced = totalProduced;
-                double finalUsed     = totalUsed;
-                double finalGrid     = totalGrid;
-
                 Platform.runLater(() -> {
-                    communityProducedLabel.setText(
-                            "Community produced: " + finalProduced + " kWh");
-                    communityUsedLabel.setText(
-                            "Community used: " + finalUsed + " kWh");
-                    gridUsedLabel.setText(
-                            "Grid used: " + finalGrid + " kWh");
+                    historicalResultBox.getChildren().clear();
+
+                    if (array.isEmpty()) {
+                        historicalResultBox.getChildren().add(new Label("Keine Daten gefunden."));
+                        return;
+                    }
+
+                    // Tabellen-Header
+                    HBox header = new HBox(10,
+                            styledLabel("Hour", 160),
+                            styledLabel("Produced (kWh)", 120),
+                            styledLabel("Used (kWh)", 100),
+                            styledLabel("Grid (kWh)", 100)
+                    );
+                    historicalResultBox.getChildren().add(header);
+                    historicalResultBox.getChildren().add(new Separator());
+
+                    for (JsonNode entry : array) {
+                        String hour     = entry.get("hour").asText();
+                        double produced = entry.get("communityProduced").asDouble();
+                        double used     = entry.get("communityUsed").asDouble();
+                        double grid     = entry.get("gridUsed").asDouble();
+
+                        HBox row = new HBox(10,
+                                styledLabel(hour, 160),
+                                styledLabel(String.format("%.4f", produced), 120),
+                                styledLabel(String.format("%.4f", used), 100),
+                                styledLabel(String.format("%.4f", grid), 100)
+                        );
+                        historicalResultBox.getChildren().add(row);
+                    }
                 });
             } catch (Exception ex) {
-                Platform.runLater(() ->
-                        communityProducedLabel.setText("Fehler: " + ex.getMessage()));
+                Platform.runLater(() -> {
+                    historicalResultBox.getChildren().clear();
+                    historicalResultBox.getChildren().add(new Label("Fehler: " + ex.getMessage()));
+                });
             }
         }).start();
+    }
+
+    private Label styledLabel(String text, double width) {
+        Label lbl = new Label(text);
+        lbl.setMinWidth(width);
+        lbl.setMaxWidth(width);
+        return lbl;
     }
 
     public VBox getRoot() {

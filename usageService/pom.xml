@@ -10,9 +10,9 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>consumer</artifactId>
-  <name>consumer</name>
-  <description>Energy Community Consumer</description>
+  <artifactId>usageService</artifactId>
+  <name>usageService</name>
+  <description>Energy Community Usage Service</description>
 
   <dependencies>
     <dependency>

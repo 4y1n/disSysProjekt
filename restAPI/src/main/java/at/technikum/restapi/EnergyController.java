@@ -1,8 +1,8 @@
-package at.technikum.dissysproj.restapi;
+package at.technikum.restapi;
 
 
-import at.technikum.dissysproj.restapi.model.CurrentPercentage;
-import at.technikum.dissysproj.restapi.model.HourlyUsage;
+import at.technikum.restapi.model.CurrentPercentage;
+import at.technikum.restapi.model.HourlyUsage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>at.technikum</groupId>
-    <artifactId>energy-community</artifactId>
+    <artifactId>disSysProjekts</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>energy-community</name>
-    <description>Energy Community - Parent Project</description>
+    <name>disSysProjekts</name>
+    <description>disSysProjekts - Parent Project</description>
 
     <modules>
         <module>restAPI</module>

@@ -6,11 +6,11 @@
 
   <parent>
     <groupId>at.technikum</groupId>
-    <artifactId>energy-community</artifactId>
+    <artifactId>disSysProjekts</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>rest-api</artifactId>
+  <artifactId>restAPI</artifactId>
   <name>rest-api</name>
   <description>Energy Community REST API</description>
 

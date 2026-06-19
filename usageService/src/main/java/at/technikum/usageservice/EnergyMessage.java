@@ -1,0 +1,39 @@
+package at.technikum.usageservice;
+
+import java.time.LocalDateTime;
+
+public class EnergyMessage {
+
+    private String type;          // "PRODUCER" oder "USER"
+    private String association;    // "COMMUNITY"
+    private double kwh;            // kWh dieser Minute
+    private LocalDateTime datetime;
+
+    public EnergyMessage() {}      // leerer Konstruktor für später
+
+    public String getType()            {
+        return type;
+    }
+    public String getAssociation()     {
+        return association;
+    }
+    public double getKwh()             {
+        return kwh;
+    }
+    public LocalDateTime getDatetime() {
+        return datetime;
+    }
+    public void setType(String type)                {
+        this.type = type;
+    }
+    public void setAssociation(String association)  {
+        this.association = association;
+    }
+    public void setKwh(double kwh)                  {
+        this.kwh = kwh;
+    }
+    public void setDatetime(LocalDateTime datetime) {
+        this.datetime = datetime;
+    }
+
+}

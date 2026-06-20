@@ -28,7 +28,7 @@ public class EnergyProducer {
         this.mapper.registerModule(new JavaTimeModule());
     }
 
-    //kWh wert berechnen
+    // kWh Wert berechnen
     private double calculateKwh(double radiation) {
         double base = (radiation / 1000.0) * KWH_AT_FULL_SUN;
 
@@ -40,9 +40,7 @@ public class EnergyProducer {
         return Math.max(0.0, kwh);
     }
 
-
-    //nachricht als Json an RabbitMQ
-
+    // Nachricht als Json an RabbitMQ
     public void sendOneMessage() throws Exception {
         double radiation = weatherClient.getCurrentRadiation();
         double kwh = calculateKwh(radiation);

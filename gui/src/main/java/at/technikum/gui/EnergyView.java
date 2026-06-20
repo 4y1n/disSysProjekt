@@ -3,8 +3,13 @@ package at.technikum.gui;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
@@ -22,7 +27,7 @@ public class EnergyView {
     // Historical Section
     private final TextField startField = new TextField("2025-01-10T13:00:00");
     private final TextField endField   = new TextField("2025-01-10T15:00:00");
-    private final VBox historicalResultBox = new VBox(4);
+    private final TableView<HourlyUsageRow> historicalTable = new TableView<>();
 
     public EnergyView() {
         root.setPadding(new Insets(15));
@@ -43,21 +48,41 @@ public class EnergyView {
         Button showDataBtn = new Button("Show Data");
         showDataBtn.setOnAction(e -> loadHistorical());
 
-        ScrollPane scrollPane = new ScrollPane(historicalResultBox);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setPrefHeight(200);
+        setupTableColumns();
+        historicalTable.setPrefHeight(220);
+        historicalTable.setPlaceholder(new Label("Keine Daten geladen."));
 
         VBox histBox = new VBox(5,
                 new Label("=== Historical Data ==="),
                 new HBox(10, new Label("Start:"), startField),
                 new HBox(10, new Label("End:  "), endField),
                 showDataBtn,
-                scrollPane
+                historicalTable
         );
 
         root.getChildren().addAll(currentBox, new Separator(), histBox);
 
         loadCurrent();
+    }
+
+    private void setupTableColumns() {
+        TableColumn<HourlyUsageRow, String> hourCol = new TableColumn<>("Hour");
+        hourCol.setCellValueFactory(new PropertyValueFactory<>("hour"));
+        hourCol.setPrefWidth(160);
+
+        TableColumn<HourlyUsageRow, Double> producedCol = new TableColumn<>("Produced (kWh)");
+        producedCol.setCellValueFactory(new PropertyValueFactory<>("communityProduced"));
+        producedCol.setPrefWidth(120);
+
+        TableColumn<HourlyUsageRow, Double> usedCol = new TableColumn<>("Used (kWh)");
+        usedCol.setCellValueFactory(new PropertyValueFactory<>("communityUsed"));
+        usedCol.setPrefWidth(100);
+
+        TableColumn<HourlyUsageRow, Double> gridCol = new TableColumn<>("Grid (kWh)");
+        gridCol.setCellValueFactory(new PropertyValueFactory<>("gridUsed"));
+        gridCol.setPrefWidth(100);
+
+        historicalTable.getColumns().setAll(hourCol, producedCol, usedCol, gridCol);
     }
 
     private void loadCurrent() {
@@ -88,56 +113,49 @@ public class EnergyView {
                         startField.getText(), endField.getText());
                 JsonNode array = mapper.readTree(json);
 
-                Platform.runLater(() -> {
-                    historicalResultBox.getChildren().clear();
+                ObservableList<HourlyUsageRow> rows = FXCollections.observableArrayList();
+                for (JsonNode entry : array) {
+                    rows.add(new HourlyUsageRow(
+                            entry.get("hour").asText(),
+                            entry.get("communityProduced").asDouble(),
+                            entry.get("communityUsed").asDouble(),
+                            entry.get("gridUsed").asDouble()
+                    ));
+                }
 
-                    if (array.isEmpty()) {
-                        historicalResultBox.getChildren().add(new Label("Keine Daten gefunden."));
-                        return;
-                    }
+                Platform.runLater(() -> historicalTable.setItems(rows));
 
-                    // Tabellen-Header
-                    HBox header = new HBox(10,
-                            styledLabel("Hour", 160),
-                            styledLabel("Produced (kWh)", 120),
-                            styledLabel("Used (kWh)", 100),
-                            styledLabel("Grid (kWh)", 100)
-                    );
-                    historicalResultBox.getChildren().add(header);
-                    historicalResultBox.getChildren().add(new Separator());
-
-                    for (JsonNode entry : array) {
-                        String hour     = entry.get("hour").asText();
-                        double produced = entry.get("communityProduced").asDouble();
-                        double used     = entry.get("communityUsed").asDouble();
-                        double grid     = entry.get("gridUsed").asDouble();
-
-                        HBox row = new HBox(10,
-                                styledLabel(hour, 160),
-                                styledLabel(String.format("%.4f", produced), 120),
-                                styledLabel(String.format("%.4f", used), 100),
-                                styledLabel(String.format("%.4f", grid), 100)
-                        );
-                        historicalResultBox.getChildren().add(row);
-                    }
-                });
             } catch (Exception ex) {
                 Platform.runLater(() -> {
-                    historicalResultBox.getChildren().clear();
-                    historicalResultBox.getChildren().add(new Label("Fehler: " + ex.getMessage()));
+                    historicalTable.setItems(FXCollections.observableArrayList());
+                    historicalTable.setPlaceholder(new Label("Fehler: " + ex.getMessage()));
                 });
             }
         }).start();
     }
 
-    private Label styledLabel(String text, double width) {
-        Label lbl = new Label(text);
-        lbl.setMinWidth(width);
-        lbl.setMaxWidth(width);
-        return lbl;
-    }
-
     public VBox getRoot() {
         return root;
+    }
+
+    //Zeilen-Modell für die TableView.
+
+    public static class HourlyUsageRow {
+        private final SimpleStringProperty hour;
+        private final SimpleDoubleProperty communityProduced;
+        private final SimpleDoubleProperty communityUsed;
+        private final SimpleDoubleProperty gridUsed;
+
+        public HourlyUsageRow(String hour, double communityProduced, double communityUsed, double gridUsed) {
+            this.hour = new SimpleStringProperty(hour);
+            this.communityProduced = new SimpleDoubleProperty(communityProduced);
+            this.communityUsed = new SimpleDoubleProperty(communityUsed);
+            this.gridUsed = new SimpleDoubleProperty(gridUsed);
+        }
+
+        public String getHour() { return hour.get(); }
+        public double getCommunityProduced() { return communityProduced.get(); }
+        public double getCommunityUsed() { return communityUsed.get(); }
+        public double getGridUsed() { return gridUsed.get(); }
     }
 }

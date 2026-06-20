@@ -24,7 +24,7 @@
       <version>5.21.0</version>
     </dependency>
 
-    <!-- PostgreSQL JDBC-Treiber  -->
+    <!-- PostgreSQL JDBC-Treiber -->
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
@@ -45,29 +45,11 @@
       <version>2.17.2</version>
     </dependency>
 
-    <!-- Tests  -->
+    <!-- Tests -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
-    </dependency>
-      <dependency>
-          <groupId>org.springframework</groupId>
-          <artifactId>spring-context</artifactId>
-      </dependency>
-    <dependency>
-      <groupId>org.springframework.data</groupId>
-      <artifactId>spring-data-jpa</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>at.technikum</groupId>
-      <artifactId>restAPI</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.amqp</groupId>
-      <artifactId>spring-amqp</artifactId>
     </dependency>
 
   </dependencies>

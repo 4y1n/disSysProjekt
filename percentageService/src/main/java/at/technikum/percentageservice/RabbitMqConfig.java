@@ -1,34 +1,19 @@
 package at.technikum.percentageservice;
 
-
-import org.springframework.amqp.core.*;
-import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.QueueBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMqConfig {
-    public static final String PROCESSED_EXCHANGE = "energy.processed";
-    public static final String PERCENTAGE_QUEUE   = "energy.percentage";
+
+    public static final String USAGE_UPDATES_QUEUE = "usage.updates";
 
     @Bean
-    public FanoutExchange processedExchange() {
-        return new FanoutExchange(PROCESSED_EXCHANGE);
+    public Queue usageUpdatesQueue() {
+        return QueueBuilder
+                .durable(USAGE_UPDATES_QUEUE)
+                .build();
     }
-
-    @Bean
-    public Queue percentageQueue() {
-        return QueueBuilder.durable(PERCENTAGE_QUEUE).build();
-    }
-
-    @Bean
-    public Binding percentageBinding(Queue percentageQueue, FanoutExchange processedExchange) {
-        return BindingBuilder.bind(percentageQueue).to(processedExchange);
-    }
-
-    @Bean
-    public Jackson2JsonMessageConverter messageConverter() {
-        return new Jackson2JsonMessageConverter();
-    }
-
 }

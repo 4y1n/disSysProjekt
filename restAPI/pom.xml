@@ -36,6 +36,12 @@
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-database-postgresql</artifactId>
     </dependency>
+    <!-- Notwendig damit LocalDateTime korrekt als ISO-String ("2025-01-10T14:00:00")
+         statt als Zahlen-Array ([2025,1,10,14,0]) serialisiert wird -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jsr310</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
@@ -54,6 +60,17 @@
             <goals><goal>repackage</goal></goals>
           </execution>
         </executions>
+      </plugin>
+      <!-- Bettet Parameternamen in den Bytecode ein, damit @RequestParam ohne
+           expliziten Namen funktioniert. Zusaetzliche Absicherung, falls IntelliJ
+           ohne dieses Flag kompiliert (siehe EnergyController, der ohnehin
+           explizite Namen nutzt). -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <parameters>true</parameters>
+        </configuration>
       </plugin>
     </plugins>
   </build>

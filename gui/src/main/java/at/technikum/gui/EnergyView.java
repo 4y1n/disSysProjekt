@@ -27,6 +27,7 @@ public class EnergyView {
     // Historical Section
     private final TextField startField = new TextField("2025-01-10T13:00:00");
     private final TextField endField   = new TextField("2025-01-10T15:00:00");
+    private final Label summaryLabel = new Label("Summe: -");
     private final TableView<HourlyUsageRow> historicalTable = new TableView<>();
 
     public EnergyView() {
@@ -57,7 +58,8 @@ public class EnergyView {
                 new HBox(10, new Label("Start:"), startField),
                 new HBox(10, new Label("End:  "), endField),
                 showDataBtn,
-                historicalTable
+                historicalTable,
+                summaryLabel
         );
 
         root.getChildren().addAll(currentBox, new Separator(), histBox);
@@ -114,16 +116,23 @@ public class EnergyView {
                 JsonNode array = mapper.readTree(json);
 
                 ObservableList<HourlyUsageRow> rows = FXCollections.observableArrayList();
+                double totalProduced = 0, totalUsed = 0, totalGrid = 0;
                 for (JsonNode entry : array) {
-                    rows.add(new HourlyUsageRow(
-                            entry.get("hour").asText(),
-                            entry.get("communityProduced").asDouble(),
-                            entry.get("communityUsed").asDouble(),
-                            entry.get("gridUsed").asDouble()
-                    ));
+                    double produced = entry.get("communityProduced").asDouble();
+                    double used     = entry.get("communityUsed").asDouble();
+                    double grid     = entry.get("gridUsed").asDouble();
+                    totalProduced += produced;
+                    totalUsed     += used;
+                    totalGrid     += grid;
+                    rows.add(new HourlyUsageRow(entry.get("hour").asText(), produced, used, grid));
                 }
 
-                Platform.runLater(() -> historicalTable.setItems(rows));
+                final double p = totalProduced, u = totalUsed, g = totalGrid;
+                Platform.runLater(() -> {
+                    historicalTable.setItems(rows);
+                    summaryLabel.setText(String.format(
+                            "Summe: Produced %.3f kWh | Used %.3f kWh | Grid %.3f kWh", p, u, g));
+                });
 
             } catch (Exception ex) {
                 Platform.runLater(() -> {

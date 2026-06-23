@@ -138,6 +138,7 @@ public class EnergyView {
                 Platform.runLater(() -> {
                     historicalTable.setItems(FXCollections.observableArrayList());
                     historicalTable.setPlaceholder(new Label("Fehler: " + ex.getMessage()));
+                    summaryLabel.setText("Summe: -");
                 });
             }
         }).start();

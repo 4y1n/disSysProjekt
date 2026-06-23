@@ -13,6 +13,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+
 public class EnergyView {
 
     private final VBox root = new VBox(10);
@@ -25,8 +28,9 @@ public class EnergyView {
     private final Label currentHourLabel   = new Label("Hour: -");
 
     // Historical Section
-    private final TextField startField = new TextField("2025-01-10T13:00:00");
-    private final TextField endField   = new TextField("2025-01-10T15:00:00");
+    // Defaults werden zur Laufzeit gesetzt
+    private final TextField startField = new TextField(defaultStart());
+    private final TextField endField   = new TextField(defaultEnd());
     private final Label summaryLabel = new Label("Summe: -");
     private final TableView<HourlyUsageRow> historicalTable = new TableView<>();
 
@@ -148,7 +152,24 @@ public class EnergyView {
         return root;
     }
 
-    //Zeilen-Modell für die TableView.
+    // Default-Startzeit: 6 Stunden vor der aktuellen vollen Stunde.
+    private static String defaultStart() {
+        return LocalDateTime.now()
+                .truncatedTo(ChronoUnit.HOURS)
+                .minusHours(6)
+                .toString();
+    }
+
+    // Default-Endzeit: 1 Stunde nach der aktuellen vollen Stunde,
+    // damit die laufende Stunde  im Intervall liegt
+    private static String defaultEnd() {
+        return LocalDateTime.now()
+                .truncatedTo(ChronoUnit.HOURS)
+                .plusHours(1)
+                .toString();
+    }
+
+    //Zeilen Modell für die TableView.
 
     public static class HourlyUsageRow {
         private final SimpleStringProperty hour;

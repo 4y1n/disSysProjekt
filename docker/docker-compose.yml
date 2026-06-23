@@ -7,7 +7,6 @@ services:
       - POSTGRES_USER=disysuser
       - POSTGRES_PASSWORD=disyspw
       - POSTGRES_DB=energy_community
-      - POSTGRES_DB=energy_community
   
   rabbitmq:
     image: rabbitmq:management-alpine

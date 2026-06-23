@@ -19,6 +19,7 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="disSysProj" options="" />
+      <module name="rest-api" options="-parameters" />
       <module name="restAPI" options="-parameters" />
     </option>
   </component>
